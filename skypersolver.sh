@@ -12,15 +12,16 @@ COL_CYAN=$ESC_SEQ"36;01m"
 echo -e "$COL_RED Please enter skype username $COL_RESET"
 read username
 echo -e "$COL_BLUE Please wait. We are resoving I.P. $COL_RESET"
-curl --silent 'http://resolveme.org/index.php?do=resolve' -H 'Host: resolveme.org' -H 'User-Agent: Mozilla/5.0 (X11; Linux i686; rv:27.0) Gecko/20100101 Firefox/27.0' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' -H 'Accept-Language: en-US,en;q=0.5' -H 'Accept-Encoding: gzip, deflate' -H 'Referer: http://resolveme.org/' -H 'Connection: keep-alive' -H 'Cache-Control: max-age=0' -H 'Content-Type: application/x-www-form-urlencoded' --data "skypePseudo=$username" > out
-
-if [[ -n $(cat out | grep Erreur) ]]; then
+touch temp3
+echo "skype=$username&resolveSkype=" >temp3
+curl --silent -i -s -k  -X 'POST'     -H 'User-Agent: Mozilla/5.0 (X11; Linux i686; rv:32.0) Gecko/20100101 Firefox/32.0' -H 'Referer: http://skresolver.com/' -H 'Content-Type: application/x-www-form-urlencoded' --data-binary @temp3     'http://skresolver.com/' > out
+rm temp3
+if [[ -n $(cat out | grep Error) ]]; then
     echo "Error: Please try again later."
     rm out
 else
-cat out | grep IP: > temp1
+
+ip=$(grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' out)
 rm out
-ip=$(grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' temp1)
-rm temp1
-echo -e "$COL_YELLOW $username 's I.P is $ip $COL_RESET"
+echo -e "$username 's I.P is $ip "
 fi
